@@ -24,8 +24,10 @@ public class LicenseVerifier {
 
     /**
      * 加载并验证本地 License 文件
+     *
+     * @return 校验通过的 LicenseContent 内容（可注入 LicenseContext）
      */
-    public void verify() {
+    public LicenseContent verify() {
         try {
             // 1. 读取 License 文件内容
             File licenseFile = new File(config.getLicensePath());
@@ -44,11 +46,14 @@ public class LicenseVerifier {
             // 3. 加载公钥
             PublicKey publicKey = config.loadPublicKey();
 
-            // 4. 校验签名、时间、硬件指纹、时间回拨
+            // 4. 执行完整校验流程（签名、时间、硬件、时间回拨）
             LicenseValidator.validateSignature(license, publicKey);
             LicenseValidator.validateDate(license);
             LicenseValidator.validateHardware(license);
             LicenseValidator.validateTimeRollback(config.getTimeRecordPath(), config.getTimeSecret());
+
+            // 5. 校验成功，返回 License 内容用于注入 LicenseContext
+            return license;
 
         } catch (Exception e) {
             throw new LicenseLoadException("License 校验失败：" + e.getMessage(), e);

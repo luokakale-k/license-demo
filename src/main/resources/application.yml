@@ -1,0 +1,21 @@
+server:
+  port: 8081
+
+license:
+  private-key:
+    keystore-path: /Users/kaka/license_keys/privateKeys.keystore
+    alias: privateKey
+    store-pass: pubwd123456
+    key-pass: priwd123456
+
+  public-key:
+    cer-path: /Users/kaka/license_keys/certfile.cer
+
+  client:
+    license-path: /Users/kaka/licenses/LIC-202508-001.lic
+    public-key-path: ${license.public-key.cer-path}
+    time-record-path: /Users/kaka/licenses/last-startup-time.dat
+
+  time-secret: mySuperSecretKey
+
+  output-path: /Users/kaka/licenses/

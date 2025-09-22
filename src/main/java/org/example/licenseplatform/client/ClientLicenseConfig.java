@@ -28,6 +28,10 @@ public class ClientLicenseConfig {
     @Value("${license.time-secret}")
     private String timeSecret;
 
+    /** 允许的部署启动时间误差（单位：秒），用于首次启动时间与 firstUsedAt 的差值容忍范围 */
+    @Value("${license.client.allowed-deploy-delay-seconds:10}")
+    private int allowedDeployDelaySeconds; // 默认10秒，可通过 application.yml 配置覆盖
+
     /**
      * 加载公钥（从 X.509 证书文件中）
      */

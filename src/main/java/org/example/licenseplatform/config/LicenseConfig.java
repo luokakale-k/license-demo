@@ -83,5 +83,8 @@ public class LicenseConfig {
 
         /** 上次启动时间记录文件（用于时间回拨防护） */
         private String timeRecordPath;
+
+        /** 允许首次部署时间与 firstUsedAt 的最大容忍延迟（秒） */
+        private long allowedDeployDelaySeconds;
     }
 }

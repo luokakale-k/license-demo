@@ -103,18 +103,9 @@ public class LicenseValidator {
      */
     public static void validateFirstUsedAt(LicenseContent license) {
         Long firstUsedAt = license.getFirstUsedAt();
-        long issueTime = license.getIssueDate();
-
-
         if (firstUsedAt == null) {
             throw new LicenseLoadException("首次使用时间为空，License 文件可能不完整");
         }
-
-
-        if (firstUsedAt < issueTime) {
-            throw new LicenseLoadException("首次使用时间早于签发时间，License 文件非法或被修改");
-        }
-
 
         long now = System.currentTimeMillis();
         if (now < firstUsedAt) {
@@ -128,8 +119,10 @@ public class LicenseValidator {
      *
      * @param timeRecordPath 本地记录路径
      * @param timeSecret HMAC 使用的密钥
+     * @param firstUsedAt License 中记录的首次使用时间（毫秒）
+     * @param allowedDeployDelaySeconds 允许误差秒数（部署启动窗口）
      */
-    public static void validateTimeRollback(String timeRecordPath, String timeSecret) {
+    public static void validateTimeRollback(String timeRecordPath, String timeSecret, long firstUsedAt, int allowedDeployDelaySeconds) {
         try {
             long now = System.currentTimeMillis();
             Path recordPath = Paths.get(timeRecordPath);
@@ -153,6 +146,12 @@ public class LicenseValidator {
                 if (now < last) {
                     throw new LicenseLoadException("检测到系统时间回拨，License 校验失败");
                 }
+            }
+
+            // 首次部署启动，判断是否在允许窗口内
+            long delayMillis = allowedDeployDelaySeconds * 1000L;
+            if (Math.abs(now - firstUsedAt) > delayMillis) {
+                throw new LicenseLoadException("时间记录文件缺失，且当前时间与首次使用时间差距过大，疑似被删除或系统被回拨");
             }
 
             // 写入最新时间戳

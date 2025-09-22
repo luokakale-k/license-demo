@@ -51,7 +51,12 @@ public class LicenseVerifier {
             LicenseValidator.validateDate(license);
             LicenseValidator.validateHardware(license);
             LicenseValidator.validateFirstUsedAt(license);
-            LicenseValidator.validateTimeRollback(config.getTimeRecordPath(), config.getTimeSecret());
+            LicenseValidator.validateTimeRollback(
+                    config.getTimeRecordPath(),
+                    config.getTimeSecret(),
+                    license.getFirstUsedAt(),
+                    config.getAllowedDeployDelaySeconds()
+            );
 
             // 5. 校验成功，返回 License 内容用于注入 LicenseContext
             return license;

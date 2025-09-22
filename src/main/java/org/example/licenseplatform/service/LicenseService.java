@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PrivateKey;
+import java.time.Instant;
 
 /**
  * License 服务类：用于根据前端请求生成签名后的 License 文件
@@ -63,6 +64,9 @@ public class LicenseService {
 
             // 3. 设置部署模式：standalone / cluster
             content.setMode(request.getMode());
+
+            // 首次使用时间初始设为授权生效时间（也可以根据业务部署时间规定设置，这里默认采用授权生效时间）
+            content.setFirstUsedAt(request.getIssueDate());
 
             // 4. 初始签名字段设为空（参与签名的数据中不能包含签名本身）
             content.setSignature(null);

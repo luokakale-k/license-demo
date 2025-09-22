@@ -23,6 +23,7 @@ license:
     license-path: /Users/kaka/licenses/DOCX-TST-202509-001.lic
     public-key-path: /Users/kaka/license_keys/certfile.cer
     time-record-path: /Users/kaka/licenses/last-startup-time.dat
+    allowed-deploy-delay-seconds: 60  #允许首次部署时间与 firstUsedAt 相差的秒数
 
   time-secret: mySuperSecretKey
 

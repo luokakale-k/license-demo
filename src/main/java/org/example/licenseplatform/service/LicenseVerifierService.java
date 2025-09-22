@@ -51,7 +51,7 @@ public class LicenseVerifierService {
             if (!firstUsedResult.isSuccess()) return firstUsedResult;
 
             // 6. 检查系统时间是否回拨
-            Result<?> rollbackResult = verifyClockRollback(timeRecordPath);
+            Result<?> rollbackResult = verifyClockRollback(timeRecordPath, license);
             if (!rollbackResult.isSuccess()) return rollbackResult;
 
             return Result.ok("License 校验通过");
@@ -170,7 +170,7 @@ public class LicenseVerifierService {
 
 
     // 检测时间回拨并写入记录
-    private Result<?> verifyClockRollback(String timeRecordPath) {
+    private Result<?> verifyClockRollback(String timeRecordPath, LicenseContent license) {
         try {
             long nowMillis = System.currentTimeMillis();
             Path recordPath = Paths.get(timeRecordPath);
@@ -197,6 +197,15 @@ public class LicenseVerifierService {
                     log.error("检测到系统时间回拨，License 校验失败");
                     return Result.fail(4006, "检测到系统时间回拨，License 校验失败");
                 }
+            }
+
+            // 首次启动：判断当前时间是否在允许窗口内
+            long firstUsedAt = license.getFirstUsedAt();
+            long allowedDelayMillis = licenseConfig.getClient().getAllowedDeployDelaySeconds() * 1000;
+
+            if (Math.abs(nowMillis - firstUsedAt) > allowedDelayMillis) {
+                log.error("时间记录文件缺失，且当前时间与首次使用时间差距过大，疑似被删除或回拨");
+                return Result.fail(4009, "时间记录文件缺失，疑似被篡改或删除");
             }
 
             // 写入新的记录
